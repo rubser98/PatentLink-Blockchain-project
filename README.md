@@ -15,3 +15,11 @@ Requisiti funzionali:
  Funzionalità possibili:
   - Creazione di Token (NFT?) specifico per ogni brevetto
   - Test di brevetti tramite API
+
+
+
+significato cartelle create con truffle:
+  - contracts: dove mettere gli smart contracts
+  - migration: file (node.js) dove spiegare come fare deploy smart contracts nella blockchain
+  - test: test file per smart contracts 
+
