@@ -23,3 +23,12 @@ significato cartelle create con truffle:
   - migration: file (node.js) dove spiegare come fare deploy smart contracts nella blockchain
   - test: test file per smart contracts 
 
+
+possibili attributi brevetto:
+  - titolo
+  - id
+  - timestamp deposito
+  - data di scadenza
+  - descrizione
+  - owner
+  - categoria
