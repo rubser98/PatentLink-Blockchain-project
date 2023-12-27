@@ -41,5 +41,5 @@ risorse utili:
 
   - solidity: 
     https://www.youtube.com/watch?v=AYpftDFiIgk smart contract programming, 2 parts of the video regard connect UI to smart contract
-    https://www.youtube.com/watch?v=M576WGiDBdQ&ab_channel=freeCodeCamp.org
-    https://www.youtube.com/watch?v=gyMwXuJrbJQ&ab_channel=freeCodeCamp.org
+    https://www.youtube.com/watch?v=M576WGiDBdQ&ab_channel=freeCodeCamp.org dapp using solidity and python
+    https://www.youtube.com/watch?v=gyMwXuJrbJQ&ab_channel=freeCodeCamp.org dapp using solidity and js (also contains info about ERC20 - Token - and info about ERC721 - NFT -  )
