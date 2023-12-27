@@ -32,3 +32,14 @@ possibili attributi brevetto:
   - descrizione
   - owner
   - categoria
+
+
+risorse utili:
+  - truffle: 
+    https://www.youtube.com/watch?v=JXa_Y-17Oj4 initialize truffle, ganache, deploying and testing contracts
+    https://www.youtube.com/watch?v=FYhZPovlGZQ&ab_channel=WebDevCody connect UI to solidity contract
+
+  - solidity: 
+    https://www.youtube.com/watch?v=AYpftDFiIgk smart contract programming, 2 parts of the video regard connect UI to smart contract
+    https://www.youtube.com/watch?v=M576WGiDBdQ&ab_channel=freeCodeCamp.org
+    https://www.youtube.com/watch?v=gyMwXuJrbJQ&ab_channel=freeCodeCamp.org
