@@ -60,3 +60,9 @@ risorse utili:
     Frontend:
     schermata home
     connessione con wallet tramite metamask
+
+
+    processo creazione nft:
+    da frontend carico file brevetto su ipfs tramite pinata
+    pinata restituisce hash che corrisponde tokenURI
+    salvare tokenURI su blockchain nella generazione NFT 
