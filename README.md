@@ -69,5 +69,5 @@ risorse utili:
 
 
     checklist:
-    - [] nft
+    - [ ] nft
     - [x] token 
