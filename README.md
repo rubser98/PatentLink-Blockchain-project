@@ -65,4 +65,9 @@ risorse utili:
     processo creazione nft:
     da frontend carico file brevetto su ipfs tramite pinata
     pinata restituisce hash che corrisponde tokenURI
-    salvare tokenURI su blockchain nella generazione NFT 
+    salvare tokenURI su blockchain nella generazione NFT
+
+
+    checklist:
+    - [] nft
+    - [x] token 
