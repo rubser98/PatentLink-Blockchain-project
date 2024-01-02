@@ -3,6 +3,10 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+
+/// @title PatentNFT contract
+/// @author Carolina Proietti, Edoardo Giuggioloni, Paolo Marchignoli, Ruben Seror 
+/// @notice You can use this contract to file patent, buy and sell associated NFTs
 contract PatentNFT is ERC721{
 
     // Struttura dei brevetti
@@ -12,11 +16,13 @@ contract PatentNFT is ERC721{
         address owner; // Indirizzo del proprietario del brevetto
         bool onSale; //brevetto in vendita (s/n)
         uint price; //prezzo brevetto (0 se non è in vendita)
+        uint timestamp;//data deposito brevetto
+        uint deadline;//scadenza brevetto
     }
     
     uint public patentCounter;
     mapping(uint => Patent) public patents;
-    uint depositPrice;
+    uint filingPrice;
     
     /// @notice  throws an error if the msg.sender is not the owner.
     modifier onlyOwner() {
@@ -31,18 +37,19 @@ contract PatentNFT is ERC721{
         patentCounter = 0;
     }
 
-    function depositPatent(string memory _name, string memory _uri) public returns(uint){
+    function filePatent(string memory _name, string memory _uri) public payable{
         require(msg.value > depositPatent,"Not enough PatentToken to deposit your patent!");
         patents[patentCounter] = Patent({
             name: _name, 
             uri: _uri,
             owner: msg.sender, 
             onSale: false, 
-            price:0});
+            price:0,
+            timestamp: block.timestamp,
+            deadline: block.timestamp + (20 * 365 days)});
         _safeMint(msg.sender, patentCounter);
         emit PatentFiled(patentCounter, _name, msg.sender);
         patentCounter++;
-        return patentCounter;
     }
 
     function setPatentOnSale(uint patentId, uint price) public {
@@ -56,7 +63,7 @@ contract PatentNFT is ERC721{
         return patentCounter;
     }
 
-    function setDepositPrice(uint price) public onlyOwner {
-        depositPrice = price;
+    function setFilingPrice(uint price) public onlyOwner {
+        filingPrice = price;
     }
 }

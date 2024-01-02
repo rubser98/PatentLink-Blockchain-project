@@ -2,9 +2,10 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
+/// @title Patent Token contract
+/// @author Carolina Proietti, Edoardo Giuggioloni, Paolo Marchignoli, Ruben Seror 
+/// @notice You can use this contract to buy and sell PTNT, see accounts balances
 contract PatentToken is ERC20,ERC20Capped, ERC20Burnable{
 
     address public owner;
