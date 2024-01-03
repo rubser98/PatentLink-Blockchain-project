@@ -71,3 +71,6 @@ risorse utili:
     checklist:
     - [ ] nft
     - [x] token 
+
+
+    possibilità di usare nft erc1155 per gestire frazionamento (possibilità di cedere la licenza)

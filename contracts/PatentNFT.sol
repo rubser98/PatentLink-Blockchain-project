@@ -4,6 +4,13 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 
+interface IERC20{
+    function transferFrom(address sender, address recipient, uint amount) external returns (bool);
+    function balanceOf(address account) external view returns(uint);
+    function payFilingFee(address sender) external;
+}
+
+
 /// @title PatentNFT contract
 /// @author Carolina Proietti, Edoardo Giuggioloni, Paolo Marchignoli, Ruben Seror 
 /// @notice You can use this contract to file patent, buy and sell associated NFTs
@@ -19,7 +26,8 @@ contract PatentNFT is ERC721{
         uint timestamp;//data deposito brevetto
         uint deadline;//scadenza brevetto
     }
-    
+
+    IERC20 public token;
     uint public patentCounter;
     mapping(uint => Patent) public patents;
     uint filingPrice;
@@ -29,16 +37,19 @@ contract PatentNFT is ERC721{
         require(msg.sender == owner, "Only owner can call this.");
         _;
     }
-
+    //evento deposito
     event PatentFiled(uint indexed patentId, string name, address owner);
+    //evento cessione
+    event PatentAssignment(uint indexed patentId, address from, address to);
 
 
-    constructor() ERC721("PatentNFT","PTNFT"){
+    constructor(address tokenAddress) ERC721("PatentNFT","PTNFT"){
+        token = IERC20(tokenAddress);
         patentCounter = 0;
     }
 
     function filePatent(string memory _name, string memory _uri) public payable{
-        require(msg.value > depositPatent,"Not enough PatentToken to deposit your patent!");
+        require(token.payFilingFee(msg.sender),"Not enough PatentToken to deposit your patent!");
         patents[patentCounter] = Patent({
             name: _name, 
             uri: _uri,
@@ -65,5 +76,20 @@ contract PatentNFT is ERC721{
 
     function setFilingPrice(uint price) public onlyOwner {
         filingPrice = price;
+    }
+
+    function getPatentprice(uint patentId) public returns(int){
+        return patents[patentId].price;
+    }
+
+
+    function getPatentbyOwner(address _owner) public returns(Patent[]){
+        Patent[] memory patentsByOwner; 
+        for(i=0; i < patentCounter; i++){
+            if (patents[i].owner == _owner){
+                patentsByOwner.push(patents[i]);
+            }
+        }
+        return patentsByOwner;
     }
 }

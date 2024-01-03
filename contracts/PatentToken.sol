@@ -3,13 +3,17 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+
 /// @title Patent Token contract
 /// @author Carolina Proietti, Edoardo Giuggioloni, Paolo Marchignoli, Ruben Seror 
 /// @notice You can use this contract to buy and sell PTNT, see accounts balances
-contract PatentToken is ERC20,ERC20Capped, ERC20Burnable{
+contract PatentToken is ERC20{
 
     address public owner;
-    uint public blockReward;
+    uint public filingFee;
+    
+    event Buy(address indexed buyer, uint value);
+    event Sell(address indexed seller, uint value);
 
     /// @notice  throws an error if the msg.sender is not the owner.
     modifier onlyOwner() {
@@ -17,30 +21,29 @@ contract PatentToken is ERC20,ERC20Capped, ERC20Burnable{
         _;
     }
 
-    constructor(uint cap, uint reward)
-        ERC20("PatentToken", "PTNT") ERC20Capped(cap * (10 ** decimals())){
+    
+
+    constructor(uint _filingFee)
+        ERC20("PatentToken", "PTNT") {
             owner = msg.sender;
-            _mint(owner, 70000000 * (10 ** decimals()));
-            blockReward = reward * (10 ** decimals());
+            filingFee = _filingFee;
+            _mint(owner, 100000 * (10 ** decimals()));
         }
 
-    function setBlockReward(uint newReward) public onlyOwner {
-        blockReward = newReward * (10 ** decimals());
+    function buyToken(uint amount) public{
+
     }
 
-    function _mintMinerReward() internal{
-        _mint(block.coinbase, blockReward);
+    function sellToken(uint amount) public{
+
     }
 
-    function _beforeTokenTransfer(address from, address to, uint value) internal virtual override{
-        if(from != address(0) && to != block.coinbase && block.coinbase != address(0)){
-            _mintMinerReward();
-        }
-        super._beforeTokenTransfer(from,to,value);   
+    function payFilingFee(address _sender) public returns(bool){
+        return _transferFrom(owner, _sender, filingFee);
     }
 
-    function destroy() public onlyOwner(){
-        selfdestruct(owner);
+    function setFilingFee(uint amount) public{
+        filingFee = amount * (10 ** decimals());
     }
 
 
