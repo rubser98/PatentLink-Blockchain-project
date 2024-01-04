@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 
 interface IERC20{
@@ -38,7 +38,7 @@ contract PatentNFT is ERC721{
         _;
     }
     //evento deposito
-    event PatentFiled(uint indexed patentId, string name, address owner);
+    event PatentFiled(uint indexed patentId, address owner);
     //evento cessione
     event PatentAssignment(uint indexed patentId, address from, address to);
 
@@ -48,18 +48,16 @@ contract PatentNFT is ERC721{
         patentCounter = 0;
     }
 
-    function filePatent(string memory _name, string memory _uri) public payable{
+    function filePatent(string memory _uri) public payable{
         require(token.payFilingFee(msg.sender),"Not enough PatentToken to deposit your patent!");
-        patents[patentCounter] = Patent({
-            name: _name, 
-            uri: _uri,
-            owner: msg.sender, 
+        patents[patentCounter] = Patent({ 
             onSale: false, 
             price:0,
             timestamp: block.timestamp,
             deadline: block.timestamp + (20 * 365 days)});
         _safeMint(msg.sender, patentCounter);
-        emit PatentFiled(patentCounter, _name, msg.sender);
+        _setTokenURI(patentCounter, _uri);
+        emit PatentFiled(patentCounter, msg.sender);
         patentCounter++;
     }
 
@@ -74,16 +72,13 @@ contract PatentNFT is ERC721{
         return patentCounter;
     }
 
-    function setFilingPrice(uint price) public onlyOwner {
-        filingPrice = price;
-    }
 
     function getPatentprice(uint patentId) public returns(int){
         return patents[patentId].price;
     }
 
 
-    function getPatentbyOwner(address _owner) public returns(Patent[]){
+    function getPatentsURIbyOwner(address _owner) public returns(Patent[]){
         Patent[] memory patentsByOwner; 
         for(i=0; i < patentCounter; i++){
             if (patents[i].owner == _owner){
@@ -91,5 +86,9 @@ contract PatentNFT is ERC721{
             }
         }
         return patentsByOwner;
+    }
+
+    function getPatents() public returns (mapping(uint => string)){
+       return _tokenURIs;
     }
 }
