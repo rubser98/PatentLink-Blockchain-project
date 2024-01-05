@@ -18,7 +18,6 @@ contract PatentNFT is ERC721URIStorage{
 
     // Struttura dei brevetti
     struct Patent {
-
         bool forSale; //brevetto in vendita (s/n)
         uint price; //prezzo brevetto (0 se non è in vendita)
         uint timestamp;//data deposito brevetto
@@ -47,7 +46,7 @@ contract PatentNFT is ERC721URIStorage{
     }
 
     function filePatent(string memory _uri) public payable{
-        require(token.payFilingFee(msg.sender),"Not enough PTNT to file your patent!");
+        require(token.payFilingFee(msg.sender),"Filing fee payment failed");
         patents[patentCounter] = Patent({ 
             forSale: false, 
             price:0,

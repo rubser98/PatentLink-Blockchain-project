@@ -32,7 +32,7 @@ contract PatentToken is ERC20{
     ///@notice It allows sender to purchase PTNT
     ///@param amount amount of PTNT to purchase
     function buyToken(uint amount) public payable{
-        uint memory ptnt = amount * (10 ** decimals()); 
+        uint ptnt = amount * (10 ** decimals()); 
         require(balanceOf(owner) >= ptnt, 'Not enough PTNT in the economy');
         require(msg.value > ptnt,'Not enough ETH to buy PTNT');
         emit BuyPTNT(msg.sender, ptnt);
@@ -43,7 +43,7 @@ contract PatentToken is ERC20{
     ///@param amount amount of PTNT to sell  
     function sellToken(uint amount) public{
         require(amount > 0, 'No amount of PTNT are specified');
-        uint memory ptnt = amount * (10 ** decimals());
+        uint ptnt = amount * (10 ** decimals());
         require(balanceOf(msg.sender) > ptnt, 'You do not have that amount of PTNT');
         emit SellPTNT(msg.sender,ptnt);
         payable(msg.sender).transfer(ptnt);
@@ -53,14 +53,16 @@ contract PatentToken is ERC20{
 
     ///@notice Sender pay filingFee to file patent
     ///@param _sender address of account which pay the fee
-    function payFilingFee(address _sender) public returns(bool){
-        return _transferFrom(_sender, owner, filingFee);
+    function payFilingFee(address _sender) external returns(bool){
+        require(balanceOf(_sender)> filingFee,'Not enough PTNT to pay filing fee');
+        _transfer(_sender, owner, filingFee);
+        return true;
     }
 
     ///@notice set the price of filing fee
     ///@param amount new price of filing fee
-    function setFilingFee(uint amount) public{
-        filingFee = amount * (10 ** decimals());
+    function setFilingFee(uint amount) public onlyOwner{
+        filingFee = amount;
     }
 
     ///@notice emit PTNT 
