@@ -18,17 +18,15 @@ contract PatentNFT is ERC721{
 
     // Struttura dei brevetti
     struct Patent {
-        string name; // Nome del brevetto
-        string uri; // URI che indica l'oggetto off-chain 
-        address owner; // Indirizzo del proprietario del brevetto
-        bool onSale; //brevetto in vendita (s/n)
+
+        bool forSale; //brevetto in vendita (s/n)
         uint price; //prezzo brevetto (0 se non è in vendita)
         uint timestamp;//data deposito brevetto
         uint deadline;//scadenza brevetto
     }
 
     IERC20 public token;
-    uint public patentCounter;
+    uint private patentCounter;
     mapping(uint => Patent) public patents;
     uint filingPrice;
     
@@ -49,9 +47,9 @@ contract PatentNFT is ERC721{
     }
 
     function filePatent(string memory _uri) public payable{
-        require(token.payFilingFee(msg.sender),"Not enough PatentToken to deposit your patent!");
+        require(token.payFilingFee(msg.sender),"Not enough PTNT to file your patent!");
         patents[patentCounter] = Patent({ 
-            onSale: false, 
+            forSale: false, 
             price:0,
             timestamp: block.timestamp,
             deadline: block.timestamp + (20 * 365 days)});
@@ -61,11 +59,27 @@ contract PatentNFT is ERC721{
         patentCounter++;
     }
 
-    function setPatentOnSale(uint patentId, uint price) public {
-        require(patents[patentId].owner == msg.sender,"You are not the owner of the patent");
+    function setPatentForSale(uint patentId, uint price) public {
+        require(_owners[patentId] == msg.sender,"You are not the owner of the patent");
+        require(block.timestamp < patents[patentId].deadline,'The patent has expired');
         patents[patentId].price = price;
-        patents[patentId].onSale = true;
-        
+        patents[patentId].forSale = true;
+    }
+
+    function setPatentNotForSale(uint patentId) public {
+        require(_owners[patentId] == msg.sender,"You are not the owner of the patent");
+        require(block.timestamp < patents[patentId].deadline,'The patent has expired');
+        patents[patentId].price = 0;
+        patents[patentId].forSale = false;    
+    }
+
+    function buyPatent(uint patentId) public {
+        require(_owners[patentId] != address(0),'The patent does not exist');
+        require(patents[patentId].onSale,'The patent is not in sale');
+        require(block.timestamp < patents[patentId].deadline,'The patent has expired');
+        require(token.transferFrom(msg.sender, _owners[patentId], patents[patentId].price),'You have not enough PTNT to buy the patent');
+        emit PatentAssignment(patentId, _owners[patentId], msg.sender);
+        transferFrom(_owners[patentId], msg.sender, patentId);
     }
     
     function getTokenCount() returns(uint){
@@ -81,14 +95,11 @@ contract PatentNFT is ERC721{
     function getPatentsURIbyOwner(address _owner) public returns(Patent[]){
         Patent[] memory patentsByOwner; 
         for(i=0; i < patentCounter; i++){
-            if (patents[i].owner == _owner){
+            if (_owners[i] == _owner){
                 patentsByOwner.push(patents[i]);
             }
         }
         return patentsByOwner;
     }
 
-    function getPatents() public returns (mapping(uint => string)){
-       return _tokenURIs;
-    }
 }

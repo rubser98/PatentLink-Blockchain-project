@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /// @notice You can use this contract to buy and sell PTNT, see accounts balances
 contract PatentToken is ERC20{
 
-    address payable public owner;
+    address public owner;
     uint public filingFee;
     
     event BuyPTNT(address indexed buyer, uint value);
@@ -29,18 +29,21 @@ contract PatentToken is ERC20{
             filingFee = _filingFee;
             _mint(owner, 100000 * (10 ** decimals()));
         }
-
+    ///@notice It allows sender to purchase PTNT
+    ///@param amount amount of PTNT to purchase
     function buyToken(uint amount) public payable{
-        uint memory ptnt = amount * (10 * decimals()); 
-        require(balanceOf(owner) > ptnt, 'Not enough PTNT in the economy');
+        uint memory ptnt = amount * (10 ** decimals()); 
+        require(balanceOf(owner) >= ptnt, 'Not enough PTNT in the economy');
         require(msg.value > ptnt,'Not enough ETH to buy PTNT');
         emit BuyPTNT(msg.sender, ptnt);
         _transfer(owner,msg.sender,ptnt);
     }
 
+    ///@notice It allows sender to convert PTNT into ETH
+    ///@param amount amount of PTNT to sell  
     function sellToken(uint amount) public{
         require(amount > 0, 'No amount of PTNT are specified');
-        uint memory ptnt = amount * (10 * decimals());
+        uint memory ptnt = amount * (10 ** decimals());
         require(balanceOf(msg.sender) > ptnt, 'You do not have that amount of PTNT');
         emit SellPTNT(msg.sender,ptnt);
         payable(msg.sender).transfer(ptnt);
