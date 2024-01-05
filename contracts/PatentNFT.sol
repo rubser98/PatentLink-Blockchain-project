@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 interface IERC20{
     function transferFrom(address sender, address recipient, uint amount) external returns (bool);
     function balanceOf(address account) external view returns(uint);
-    function payFilingFee(address sender) external;
+    function payFilingFee(address sender) external returns(bool);
 }
 
 
@@ -29,11 +29,7 @@ contract PatentNFT is ERC721URIStorage{
     mapping(uint => Patent) public patents;
     uint filingPrice;
     
-    /// @notice  throws an error if the msg.sender is not the owner.
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this.");
-        _;
-    }
+
     //evento deposito
     event PatentFiled(uint indexed patentId, address owner);
     //evento cessione
@@ -45,8 +41,8 @@ contract PatentNFT is ERC721URIStorage{
         patentCounter = 0;
     }
 
-    function filePatent(string memory _uri) public payable{
-        require(token.payFilingFee(msg.sender),"Filing fee payment failed");
+    function filePatent(string memory _uri) public{
+        require(token.payFilingFee(msg.sender),'Filing fee payment failed');
         patents[patentCounter] = Patent({ 
             forSale: false, 
             price:0,
@@ -59,46 +55,36 @@ contract PatentNFT is ERC721URIStorage{
     }
 
     function setPatentForSale(uint patentId, uint price) public {
-        require(_owners[patentId] == msg.sender,"You are not the owner of the patent");
+        require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
         patents[patentId].price = price;
         patents[patentId].forSale = true;
     }
 
     function setPatentNotForSale(uint patentId) public {
-        require(_owners[patentId] == msg.sender,"You are not the owner of the patent");
+        require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
         patents[patentId].price = 0;
         patents[patentId].forSale = false;    
     }
 
     function buyPatent(uint patentId) public {
-        require(_owners[patentId] != address(0),'The patent does not exist');
-        require(patents[patentId].onSale,'The patent is not in sale');
+        require(_ownerOf(patentId) != address(0),'The patent does not exist');
+        require(patents[patentId].forSale,'The patent is not in sale');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
-        require(token.transferFrom(msg.sender, _owners[patentId], patents[patentId].price),'You have not enough PTNT to buy the patent');
-        emit PatentAssignment(patentId, _owners[patentId], msg.sender);
-        transferFrom(_owners[patentId], msg.sender, patentId);
+        require(token.transferFrom(msg.sender, _ownerOf(patentId), patents[patentId].price),'You have not enough PTNT to buy the patent');
+        emit PatentAssignment(patentId, _ownerOf(patentId), msg.sender);
+        transferFrom(_ownerOf(patentId), msg.sender, patentId);
     }
     
-    function getTokenCount() returns(uint){
+    function getTokenCount() public returns(uint){
         return patentCounter;
     }
 
 
-    function getPatentprice(uint patentId) public returns(int){
+    function getPatentprice(uint patentId) public returns(uint){
         return patents[patentId].price;
     }
 
-
-    function getPatentsURIbyOwner(address _owner) public returns(Patent[]){
-        Patent[] memory patentsByOwner; 
-        for(i=0; i < patentCounter; i++){
-            if (_owners[i] == _owner){
-                patentsByOwner.push(patents[i]);
-            }
-        }
-        return patentsByOwner;
-    }
 
 }

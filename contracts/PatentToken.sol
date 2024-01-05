@@ -21,8 +21,6 @@ contract PatentToken is ERC20{
         _;
     }
 
-    
-
     constructor(uint _filingFee)
         ERC20("PatentToken", "PTNT") {
             owner = msg.sender;
