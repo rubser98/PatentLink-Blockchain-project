@@ -14,7 +14,7 @@ interface IERC20{
 /// @title PatentNFT contract
 /// @author Carolina Proietti, Edoardo Giuggioloni, Paolo Marchignoli, Ruben Seror 
 /// @notice You can use this contract to file patent, buy and sell associated NFTs
-contract PatentNFT is ERC721{
+contract PatentNFT is ERC721URIStorage{
 
     // Struttura dei brevetti
     struct Patent {
