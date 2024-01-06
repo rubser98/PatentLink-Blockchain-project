@@ -24,17 +24,28 @@ contract PatentNFT is ERC721URIStorage{
         uint deadline;//scadenza brevetto
     }
 
+    enum State {Refused, Accepted, Pending}
+
+    struct Bid{
+        address bidder;
+        uint amount;
+        State state;
+    }
+
     IERC20 public token;
     uint private patentCounter;
     mapping(uint => Patent) public patents;
     uint filingPrice;
-    
+    mapping(uint => Bid[]) bids;
 
     //evento deposito
     event PatentFiled(uint indexed patentId, address owner);
     //evento cessione
     event PatentAssignment(uint indexed patentId, address from, address to);
-
+    //evento offerta rifiutata
+    event BidRefused(uint tokenId, address owner, address bidder);
+    //evento offerta
+    event MakeBid(uint tokenId, address owner, address bidder);
 
     constructor(address tokenAddress) ERC721("PatentNFT","PTNFT"){
         token = IERC20(tokenAddress);
@@ -93,6 +104,42 @@ contract PatentNFT is ERC721URIStorage{
     ///@param patentId id of the nft associated to the patent
     function getPatentprice(uint patentId) public view returns(uint){
         return patents[patentId].price;
+    }
+
+    function getBids(uint tokenId) public view returns(Bid[] memory){
+        require(_ownerOf(tokenId) == msg.sender,'You are not the owner of the patent');
+        return bids[tokenId];
+    }
+
+    function rejectBid(uint tokenId, uint indexBid) public{
+        require(_ownerOf(tokenId) == msg.sender,'You are not the owner of the patent');
+        require(bids[tokenId].length < indexBid, 'Index out of range');
+        bids[tokenId][indexBid].state = State.Refused;
+        emit BidRefused(tokenId, _ownerOf(tokenId), bids[tokenId][indexBid].bidder);
+    }
+
+    function acceptBid(uint tokenId, uint indexBid) public{
+        require(_ownerOf(tokenId) == msg.sender,'You are not the owner of the patent');
+        require(bids[tokenId].length < indexBid, 'Index out of range');
+        Bid memory bid = bids[tokenId][indexBid];
+        require(_ownerOf(tokenId) != bid.bidder, 'You can not accept your bids');
+        require(token.balanceOf(bid.bidder) >= bid.amount, 'The bidder does not have enough PTNT');
+        emit PatentAssignment(tokenId, msg.sender, bid.bidder);
+        token.transfer(bid.bidder, msg.sender, bid.amount);
+        safeTransferFrom(msg.sender, bid.bidder, tokenId);
+        
+    }
+
+    function makeBid(uint patentId, uint amount) public{
+        require(msg.sender != _ownerOf(patentId),'You are already the owner of the patent');
+        require(token.balanceOf(msg.sender) >= amount, 'You do not have enough PTNT');
+        Bid memory bid = Bid({
+            bidder: msg.sender,
+            amount: amount,
+            state: State.Pending
+        });
+        bids[patentId].push(bid);
+        emit MakeBid(patentId, ownerOf(patentId), msg.sender);
     }
 
 
