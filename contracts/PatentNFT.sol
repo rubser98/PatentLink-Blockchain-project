@@ -41,6 +41,8 @@ contract PatentNFT is ERC721URIStorage{
         patentCounter = 0;
     }
 
+    ///@notice method that allow user to file their patents
+    ///@param _uri URI of the filed Patent in IPFS
     function filePatent(string memory _uri) public{
         require(token.payFilingFee(msg.sender),'Filing fee payment failed');
         patents[patentCounter] = Patent({ 
@@ -53,7 +55,8 @@ contract PatentNFT is ERC721URIStorage{
         emit PatentFiled(patentCounter, msg.sender);
         patentCounter++;
     }
-
+    ///@notice user can put the patent up for sale
+    ///@param patentId nft id of the patent
     function setPatentForSale(uint patentId, uint price) public {
         require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
@@ -61,6 +64,8 @@ contract PatentNFT is ERC721URIStorage{
         patents[patentId].forSale = true;
     }
 
+    ///@notice user can remove the patent from sale
+    ///@param patentId nft id of the patent
     function setPatentNotForSale(uint patentId) public {
         require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
@@ -77,11 +82,13 @@ contract PatentNFT is ERC721URIStorage{
         transferFrom(_ownerOf(patentId), msg.sender, patentId);
     }
     
+    ///@notice return number of filed patents
     function getTokenCount() public view returns(uint){
         return patentCounter;
     }
 
-
+    ///@notice return the price in PTNT of a specific patent
+    ///@param patentId id of the nft associated to the patent
     function getPatentprice(uint patentId) public view returns(uint){
         return patents[patentId].price;
     }

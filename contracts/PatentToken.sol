@@ -27,25 +27,24 @@ contract PatentToken is ERC20{
             filingFee = _filingFee;
             _mint(owner, 100000 * (10 ** decimals()));
         }
+
     ///@notice It allows sender to purchase PTNT
     ///@param amount amount of PTNT to purchase
     function buyToken(uint amount) public payable{
-        uint ptnt = amount * (10 ** decimals()); 
-        require(balanceOf(owner) >= ptnt, 'Not enough PTNT in the economy');
-        require(msg.value > ptnt,'Not enough ETH to buy PTNT');
-        emit BuyPTNT(msg.sender, ptnt);
-        _transfer(owner,msg.sender,ptnt);
+        require(balanceOf(owner) >= amount, 'Not enough PTNT in the economy');
+        require(msg.value > amount,'Not enough ETH to buy PTNT');
+        emit BuyPTNT(msg.sender, amount);
+        _transfer(owner,msg.sender,amount);
     }
 
     ///@notice It allows sender to convert PTNT into ETH
     ///@param amount amount of PTNT to sell  
     function sellToken(uint amount) public{
         require(amount > 0, 'No amount of PTNT are specified');
-        uint ptnt = amount * (10 ** decimals());
-        require(balanceOf(msg.sender) > ptnt, 'You do not have that amount of PTNT');
-        emit SellPTNT(msg.sender,ptnt);
-        payable(msg.sender).transfer(ptnt);
-        _transfer(msg.sender, owner, ptnt);
+        require(balanceOf(msg.sender) >= amount, 'You do not have that amount of PTNT');
+        emit SellPTNT(msg.sender,amount);
+        payable(msg.sender).transfer(amount);
+        _transfer(msg.sender, owner, amount);
 
     }
 
@@ -66,7 +65,14 @@ contract PatentToken is ERC20{
     ///@notice emit PTNT 
     ///@param amount amount of PTNT minted
     function mint(uint amount) public onlyOwner{
-        _mint(owner, amount * (10 * decimals()));
+        _mint(owner, amount * (10 ** decimals()));
+    }
+
+    function changeOwner(address _newOwner) public onlyOwner{
+        require(_newOwner != address(0));
+        _transfer(owner, _newOwner, balanceOf(owner));
+        owner = _newOwner;
+
     }
 
 }
