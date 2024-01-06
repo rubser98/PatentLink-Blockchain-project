@@ -77,12 +77,12 @@ contract PatentNFT is ERC721URIStorage{
         transferFrom(_ownerOf(patentId), msg.sender, patentId);
     }
     
-    function getTokenCount() public returns(uint){
+    function getTokenCount() public view returns(uint){
         return patentCounter;
     }
 
 
-    function getPatentprice(uint patentId) public returns(uint){
+    function getPatentprice(uint patentId) public view returns(uint){
         return patents[patentId].price;
     }
 
