@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 
 interface IERC20{
-    function transferFrom(address sender, address recipient, uint amount) external returns (bool);
+    function transfer(address from, address to, uint amount) external returns (bool);
     function balanceOf(address account) external view returns(uint);
     function payFilingFee(address sender) external returns(bool);
 }
@@ -60,6 +60,7 @@ contract PatentNFT is ERC721URIStorage{
     function setPatentForSale(uint patentId, uint price) public {
         require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
+        require(patents[patentId].forSale, 'Patent already up for sale');
         patents[patentId].price = price;
         patents[patentId].forSale = true;
     }
@@ -69,6 +70,7 @@ contract PatentNFT is ERC721URIStorage{
     function setPatentNotForSale(uint patentId) public {
         require(_ownerOf(patentId) == msg.sender,'You are not the owner of the patent');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
+        require(patents[patentId].forSale == false, 'Patent already not up for sale');
         patents[patentId].price = 0;
         patents[patentId].forSale = false;    
     }
@@ -77,9 +79,9 @@ contract PatentNFT is ERC721URIStorage{
         require(_ownerOf(patentId) != address(0),'The patent does not exist');
         require(patents[patentId].forSale,'The patent is not in sale');
         require(block.timestamp < patents[patentId].deadline,'The patent has expired');
-        require(token.transferFrom(msg.sender, _ownerOf(patentId), patents[patentId].price),'You have not enough PTNT to buy the patent');
+        require(token.transfer(msg.sender,_ownerOf(patentId), patents[patentId].price),'You have not enough PTNT to buy the patent');
         emit PatentAssignment(patentId, _ownerOf(patentId), msg.sender);
-        transferFrom(_ownerOf(patentId), msg.sender, patentId);
+        _transfer(_ownerOf(patentId), msg.sender, patentId);
     }
     
     ///@notice return number of filed patents

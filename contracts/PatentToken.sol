@@ -75,4 +75,9 @@ contract PatentToken is ERC20{
 
     }
 
+    function transfer(address from, address to, uint amount) external returns(bool){
+        _transfer(from, to,amount);
+        return true;
+    }
+
 }
