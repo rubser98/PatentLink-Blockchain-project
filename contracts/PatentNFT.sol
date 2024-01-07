@@ -127,7 +127,7 @@ contract PatentNFT is ERC721URIStorage{
         emit PatentAssignment(tokenId, msg.sender, bid.bidder);
         token.transfer(bid.bidder, msg.sender, bid.amount);
         safeTransferFrom(msg.sender, bid.bidder, tokenId);
-        
+        clearBids(tokenId);
     }
 
     function makeBid(uint patentId, uint amount) public{
@@ -140,6 +140,12 @@ contract PatentNFT is ERC721URIStorage{
         });
         bids[patentId].push(bid);
         emit MakeBid(patentId, ownerOf(patentId), msg.sender);
+    }
+
+    function clearBids(uint patentId) internal {
+        while(bids[patentId].length > 0){
+            bids[patentId].pop();
+        }
     }
 
 
